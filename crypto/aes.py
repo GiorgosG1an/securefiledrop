@@ -23,13 +23,13 @@ def encrypt_file(input_path: str, output_path:str) -> bytes:
         # read the full file into memory.
         plaintext = f.read() # TODO optimize for streaming large files
 
-        aes_key = os.urandom(32) # 256-bit key
-        nonce = os.urandom(12) # 96-bit for IV for GCM (standard)
+    aes_key = os.urandom(32) # 256-bit key
+    nonce = os.urandom(12) # 96-bit for IV for GCM (standard)
 
-        aesgcm = AESGCM(aes_key)
-        ciphertext = aesgcm.encrypt(nonce, plaintext, associated_data=None)
+    aesgcm = AESGCM(aes_key)
+    ciphertext = aesgcm.encrypt(nonce, plaintext, associated_data=None)
 
-    with open(output_path, 'rb') as f:
+    with open(output_path, 'wb') as f:
         f.write(nonce + ciphertext)
         
     return aes_key
@@ -56,11 +56,11 @@ def decrypt_file(input_path: str, output_path:str, aes_key:bytes) -> None:
     with open(input_path, 'rb') as f:
         data = f.read()
 
-        nonce = data[:12]
-        ciphertext = data[12:]
+    nonce = data[:12]
+    ciphertext = data[12:]
 
-        aesgcm = AESGCM(aes_key)
-        plaintext = aesgcm.decrypt(nonce, ciphertext, associated_data=None)
+    aesgcm = AESGCM(aes_key)
+    plaintext = aesgcm.decrypt(nonce, ciphertext, associated_data=None)
 
-    with open(output_path, 'rb') as f:
+    with open(output_path, 'wb') as f:
         f.write(plaintext)
