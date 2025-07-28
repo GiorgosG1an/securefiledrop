@@ -1,11 +1,43 @@
+import os
+import base64
 import argparse
+
+from crypto.aes import encrypt_file, decrypt_file
 
 def upload_file(args):
     print(f"Uploading: {args.input}")
+    input_path = args.input
+    filename = os.path.basename(input_path)
+    output_path = os.path.join("uploads", filename + ".enc")
 
+    aes_key = encrypt_file(input_path, output_path)
+    print(f"File encrypted and saved as: {output_path}")
+
+    b64key = base64.b64encode(aes_key).decode()
+    print(f"AES key (base64): {b64key}")
+    print("Save this key securely to decrypt the file later.")
 
 def download_file(args):
     print(f"Downloading: {args.input}")
+    input_path = args.input
+    filename = os.path.basename(input_path).replace(".enc", ".decrypted")
+    output_path = os.path.join(".", filename)
+
+    # Ask user for base64 AES key (interactive for now)
+    b64key = input("🔐 Enter the AES key (base64): ").strip()
+    try:
+        aes_key = base64.b64decode(b64key)
+        if len(aes_key) != 32:
+            raise ValueError("Invalid AES key length")
+    except Exception as e:
+        print(f"Error decoding AES key: {e}")
+        return
+
+    try:
+        decrypt_file(input_path, output_path, aes_key)
+        print(f"✅ File decrypted and saved as: {output_path}")
+    except Exception as e:
+        print(f"❌ Decryption failed: {e}")
 
 def verify_logs(args):
     print("Verifying logs...")
