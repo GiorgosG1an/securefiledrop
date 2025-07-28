@@ -34,3 +34,33 @@ def encrypt_file(input_path: str, output_path:str) -> bytes:
         
     return aes_key
 
+def decrypt_file(input_path: str, output_path:str, aes_key:bytes) -> None:
+    """
+    Decrypts an AES-GCM encrypted file and writes the plaintext to an output file.
+
+    Args:
+        input_path (str): Path to the encrypted input file.
+        output_path (str): Path where the decrypted output file will be written.
+        aes_key (bytes): AES key used for decryption.
+
+    Raises:
+        cryptography.exceptions.InvalidTag: If the decryption fails due to authentication error.
+        FileNotFoundError: If the input file does not exist.
+        IOError: If there is an error reading or writing files.
+
+    Note:
+        The input file is expected to have the nonce as the first 12 bytes,
+        followed by the ciphertext (including the authentication tag).
+    """
+
+    with open(input_path, 'rb') as f:
+        data = f.read()
+
+        nonce = data[:12]
+        ciphertext = data[12:]
+
+        aesgcm = AESGCM(aes_key)
+        plaintext = aesgcm.decrypt(nonce, ciphertext, associated_data=None)
+
+    with open(output_path, 'rb') as f:
+        f.write(plaintext)
