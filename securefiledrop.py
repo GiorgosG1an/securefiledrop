@@ -3,7 +3,7 @@ import base64
 import argparse
 
 from crypto.aes import encrypt_file, decrypt_file
-from crypto.hmac_signer import log_event
+from crypto.hmac_signer import log_event, verify_log_file
 
 def upload_file(args):
     print(f"Uploading: {args.input}")
@@ -44,6 +44,11 @@ def download_file(args):
 
 def verify_logs(args):
     print("Verifying logs...")
+
+    result = verify_log_file()
+
+    if not result:
+        print("❗ Some log entries failed verification.")
 
 def main():
     parser = argparse.ArgumentParser(description="SecureFileDrop - Encrypted File Sharing CLI.")
