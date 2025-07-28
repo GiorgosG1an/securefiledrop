@@ -3,6 +3,7 @@ import base64
 import argparse
 
 from crypto.aes import encrypt_file, decrypt_file
+from crypto.hmac_signer import log_event
 
 def upload_file(args):
     print(f"Uploading: {args.input}")
@@ -15,6 +16,7 @@ def upload_file(args):
 
     b64key = base64.b64encode(aes_key).decode()
     print(f"AES key (base64): {b64key}")
+    log_event("upload", os.path.basename(output_path))
     print("Save this key securely to decrypt the file later.")
 
 def download_file(args):
@@ -36,6 +38,7 @@ def download_file(args):
     try:
         decrypt_file(input_path, output_path, aes_key)
         print(f"✅ File decrypted and saved as: {output_path}")
+        log_event("download", os.path.basename(input_path))
     except Exception as e:
         print(f"❌ Decryption failed: {e}")
 
@@ -71,4 +74,3 @@ def main():
     
 if __name__ == '__main__':
     main()
-
